@@ -1433,6 +1433,10 @@ class Binlog_event_writer : public Basic_ostream {
       } else {
         my_off_t write_bytes = std::min<uint64>(length, event_len);
 
+        DBUG_EXECUTE_IF("simulate_error_during_flush_thread_caches", {
+          if (event_len > 512) return true;
+        };);
+
         if (m_binlog_file->write(buffer, write_bytes)) return true;
 
         // update the checksum
