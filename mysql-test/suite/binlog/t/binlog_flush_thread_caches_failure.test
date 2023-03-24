@@ -13,7 +13,7 @@ connect(con2,localhost,root,,);
 
 --connection con1
 SET DEBUG_SYNC = "bgc_after_enrolling_for_flush_stage SIGNAL leader_enter_flush_stage WAIT_FOR follower_enter_flush_stage";
-SET SESSION debug = "+d,simulate_error_during_flush_thread_caches";
+SET SESSION debug = "+d,simulate_do_write_cache_failure";
 --send INSERT INTO t1 values (1, repeat('a', 1024));
 
 --connection con2
@@ -32,7 +32,7 @@ select i from t2;
 DROP table t1, t2;
 --echo #check binlog file
 let $datadir = `SELECT @@DATADIR`;
---exec $MYSQL_BINLOG --force-if-open --verbose $datadir/binlog.000001 | egrep '^CREATE|^DROP|^INSERT'
+--exec $MYSQL_BINLOG --force-if-open --verbose $datadir/binlog.000001 | egrep '^CREATE|^DROP|^INSERT|^###'
 
 # Cleanup
 --disconnect con1
